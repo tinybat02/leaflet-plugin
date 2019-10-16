@@ -21,7 +21,7 @@ export class LeafletPanel extends PureComponent<PanelProps> {
 
   componentDidMount() {
     const { series } = this.props.data;
-    this.map = L.map('map').setView(
+    this.map = L.map('map', { preferCanvas: true }).setView(
       [series[0].rows[0][0], series[1].rows[0][0]],
       18
     );
