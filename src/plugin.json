@@ -2,7 +2,7 @@
   "type": "panel",
   "name": "Leaflet Map",
   "id": "leaflet-panel",
-  "dataFormats": ["time_series"],
+  "dataFormats": ["table"],
   "info": {
     "description": "Display leaflet map in Grafana panel",
     "author": {
