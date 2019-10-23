@@ -8,7 +8,7 @@
 
 > npm run build
 
-# For Nikos
+### For Nikos
 
 Just clone the whole folder to grafana-x.x.x\data\plugins.
 Dont't need to run any code.

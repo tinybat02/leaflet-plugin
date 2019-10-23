@@ -27,6 +27,7 @@ export class LeafletPanel extends PureComponent<PanelProps> {
   map: Map;
   //markers: FeatureGroup;
   traces: FeatureGroup;
+  //selector: Control;
   /* componentDidMount() {
     const { series } = this.props.data;
     this.map = L.map('map', { preferCanvas: true }).setView(
@@ -86,6 +87,16 @@ export class LeafletPanel extends PureComponent<PanelProps> {
     Object.keys(data_per_mac).forEach(key => {
       limit3_data_per_mac[key] = data_per_mac[key].slice(-3);
     });
+
+    /* this.selector = L.control.attribution({position: 'topright'});
+    this.selector.onAdd = function(map) {
+      const div = L.DomUtil.create('div', 'userSelector');
+      const option_content = Object.keys(limit3_data_per_mac).reduce((total, item) => {
+        return total + `<option value=${item}>item</option>`
+      },'')
+      div.innerHTML=''
+    } */
+
     const markers_lines: (CircleMarker | Polyline)[] = [];
     Object.keys(limit3_data_per_mac).forEach(key => {
       const color_per_mac = getRandomColor();
@@ -122,7 +133,7 @@ export class LeafletPanel extends PureComponent<PanelProps> {
   }
 
   componentDidUpdate({ data }) {
-    if (data.series[0].rows != this.props.data.series[0].rows) {
+    if (data.series[0].rows.length != this.props.data.series[0].rows.length) {
       if (this.traces) {
         this.map.removeLayer(this.traces);
       }
@@ -172,7 +183,11 @@ export class LeafletPanel extends PureComponent<PanelProps> {
   }
 
   render() {
-    console.log('test newest');
-    return <div id="map" style={{ width: '100%', height: '100%' }}></div>;
+    return (
+      <div style={{ width: '100%', height: '100%' }}>
+        <div style={{ padding: 30 }}></div>
+        <div id="map" style={{ width: '100%', height: '100%' }}></div>;
+      </div>
+    );
   }
 }
