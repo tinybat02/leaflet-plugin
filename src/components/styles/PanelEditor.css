@@ -1,0 +1,56 @@
+.upload {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-items: flex-start;
+  text-align: left;
+  overflow: hidden;
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: row;
+  padding-top: 16px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.upload-file {
+  margin-left: 32px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex: 1;
+  overflow: auto;
+}
+
+.upload-actions {
+  margin-top: 32px;
+}
+
+.upload-title {
+  margin-bottom: 32px;
+}
+
+.upload-filename {
+  margin-bottom: 8px;
+}
+
+.upload-filerow {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 50px;
+  padding: 8px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.panel-content {
+  padding: 32px;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
