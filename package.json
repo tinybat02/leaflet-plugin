@@ -1,7 +1,7 @@
 {
-  "name": "grafana-rss-panel",
+  "name": "grafana-leaflet-panel",
   "version": "1.0.0",
-  "description": "Grafana RSS Panel",
+  "description": "Grafana Leaflet Map Panel",
   "scripts": {
     "build": "webpack --mode production",
     "dev": "webpack --mode development",

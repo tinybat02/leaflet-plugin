@@ -1,32 +1,9 @@
-export interface RssFeed {
-  description: string;
-  image: string;
-  items: RssItem[];
-  title: string;
-  url: string;
+export interface MapOptions {
+  topology: File;
+  polygon: File;
 }
 
-export interface RssItem {
-  created: number;
-  description: string;
-  link: string;
-  title: string;
-  url: string;
-}
-
-export interface RssOptions {
-  feedUrl: string;
-}
-
-export const defaults: RssOptions = {
-  feedUrl: '',
+export const defaults: MapOptions = {
+  topology: null,
+  polygon: null,
 };
-
-export interface ResItem {
-  chain: number;
-  groupKey: string;
-  hashKey: string;
-  lat: number;
-  lng: number;
-  timestamp: string;
-}

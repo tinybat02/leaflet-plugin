@@ -1,28 +1,21 @@
 import React, { PureComponent } from 'react';
-import {
-  /* FormField, */ PanelOptionsGroup,
-  PanelEditorProps,
-} from '@grafana/ui';
-//import Upload from './editor_elements/Upload';
-import { RssOptions } from '../types';
+import { PanelOptionsGroup, PanelEditorProps } from '@grafana/ui';
+import { MapOptions } from '../types';
 import Dropzone from './editor_elements/Dropzone';
 import './styles/PanelEditor.css';
 
-/* interface State {
-  feedUrl: string;
-} */
 interface State {
-  polygons: [number, number][][];
+  topology: File;
+  polygon: File;
+  existingTopology: object;
+  existingPolygon: object;
   files: File[];
   uploaded: boolean;
   processing: boolean;
 }
-/* interface MapOptions {
-  polygons: [number, number][] []
-} */
 
 export class MapPanelEditor extends PureComponent<
-  PanelEditorProps<RssOptions>,
+  PanelEditorProps<MapOptions>,
   State
 > {
   /* constructor(props) {
@@ -34,7 +27,10 @@ export class MapPanelEditor extends PureComponent<
     };
   } */
   state = {
-    polygons: [],
+    topology: null,
+    polygon: null,
+    existingTopology: this.props.options.topology,
+    existingPolygon: this.props.options.polygon,
     files: [],
     uploaded: false,
     processing: false,
@@ -45,40 +41,118 @@ export class MapPanelEditor extends PureComponent<
       files: [...prevState.files, ...files],
     }));
   };
-  /* onUpdatePanel = () =>
-    this.props.onOptionsChange({
-      ...this.props.options,
-      feedUrl: this.state.feedUrl,
-    }); */
 
-  //onFeedUrlChange = ({ target }) => this.setState({ feedUrl: target.value });
+  handleSubmit = () => {
+    if (this.state.topology) {
+      const reader = new FileReader();
+      const that = this;
+      reader.onloadend = function() {
+        const obj = JSON.parse(reader.result as string);
+        that.props.onOptionsChange({
+          ...that.props.options,
+          topology: obj,
+        });
+      };
+      reader.readAsText(this.state.topology);
+    }
+
+    if (this.state.polygon) {
+      const reader = new FileReader();
+      const that = this;
+      reader.onloadend = function() {
+        const obj = JSON.parse(reader.result as string);
+        that.props.onOptionsChange({
+          ...that.props.options,
+          polygon: obj,
+        });
+      };
+      reader.readAsText(this.state.polygon);
+    }
+  };
+
+  handleTopologySelect = (file: File) => () => {
+    if ((this.state.polygon || { name: '' }).name === file.name) {
+      this.setState({ polygon: null });
+    }
+
+    if ((this.state.topology || { name: '' }).name === file.name) {
+      this.setState({ topology: null });
+    } else {
+      this.setState({ topology: file });
+    }
+  };
+
+  handlePolygonSelect = (file: File) => () => {
+    if ((this.state.topology || { name: '' }).name === file.name) {
+      this.setState({ topology: null });
+    }
+
+    if ((this.state.polygon || { name: '' }).name === file.name) {
+      this.setState({ polygon: null });
+    } else {
+      this.setState({ polygon: file });
+    }
+  };
 
   render() {
-    //const { feedUrl } = this.state;
-    //const { polygons } = this.state;
-    console.log(this.state.files);
     return (
       <>
-        <PanelOptionsGroup title="Custom Map">
-          <div className="panel-content">
-            <div className="upload">
-              <span className="upload-title">Upload Json File</span>
-              <div className="upload-content">
-                <div>
-                  <Dropzone
-                    onFilesAdded={this.onFilesAdded}
-                    disabled={this.state.uploaded}
-                  />
-                </div>
+        <PanelOptionsGroup title="Map Configuration">
+          <div className="upload">
+            <div className="upload-content">
+              <div className="upload-drop-area">
+                <p className="upload-title">Upload Json File</p>
+                <Dropzone
+                  onFilesAdded={this.onFilesAdded}
+                  disabled={this.state.uploaded}
+                />
               </div>
               <div className="upload-actions">
-                {this.state.files.map((file, i) => {
-                  return (
-                    <div key={i} className="upload-filerow">
-                      <span className="upload-filename">{file.name}</span>
-                    </div>
-                  );
-                })}
+                <div className="upload-file-info">
+                  <div>
+                    {this.state.files.map((file, i) => {
+                      return (
+                        <div key={i} className="upload-filerow">
+                          <span className="upload-filename">{file.name}</span>
+
+                          <div className="upload-file-selections">
+                            <input
+                              type="radio"
+                              onChange={this.handleTopologySelect(file)}
+                              checked={
+                                this.state.topology
+                                  ? this.state.topology.name === file.name
+                                  : false
+                              }
+                            />
+                            <label className="checkbox-label">Topology</label>
+                            <input
+                              type="radio"
+                              onChange={this.handlePolygonSelect(file)}
+                              checked={
+                                this.state.polygon
+                                  ? this.state.polygon.name === file.name
+                                  : false
+                              }
+                            />
+                            <label className="checkbox-label">Polygon</label>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="submit-button">
+                    {(this.state.topology || this.state.polygon) && (
+                      <button
+                        className="btn btn-outline-primary"
+                        onClick={this.handleSubmit}
+                      >
+                        Submit
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="map-settings"></div>
               </div>
             </div>
           </div>
@@ -86,17 +160,4 @@ export class MapPanelEditor extends PureComponent<
       </>
     );
   }
-}
-
-{
-  /* <div className="gf-form">
-            <FormField
-              label="Feed url"
-              labelWidth={6}
-              inputWidth={25}
-              value={feedUrl}
-              onChange={this.onFeedUrlChange}
-              onBlur={this.onUpdatePanel}
-            />
-          </div> */
 }

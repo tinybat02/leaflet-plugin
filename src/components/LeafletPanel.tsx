@@ -6,6 +6,8 @@ import nearestPoint, { NearestPoint } from '@turf/nearest-point';
 import PathFinder from 'geojson-path-finder';
 import atlantis_nodes from '../geojson/atlantis_nodes.js';
 import atlantis_network from '../geojson/atlantis_network.js';
+import { MapOptions } from '../types';
+
 import 'leaflet/dist/leaflet.css';
 /* import 'leaflet/dist/images/layers.png';
 import 'leaflet/dist/images/layers-2x.png';
@@ -28,13 +30,14 @@ L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl }); */
   }
   return color;
 } */
+interface Props extends PanelProps<MapOptions> {}
 
 interface MapState {
   options: string[];
   current_user: string;
 }
 
-export class LeafletPanel extends PureComponent<PanelProps, MapState> {
+export class LeafletPanel extends PureComponent<Props, MapState> {
   map: Map;
   //markers: FeatureGroup;
   traces: FeatureGroup;

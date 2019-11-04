@@ -15,6 +15,14 @@
   width: 100%;
 }
 
+.upload-drop-area {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
 .upload-file {
   margin-left: 32px;
   align-items: flex-start;
@@ -25,32 +33,61 @@
 
 .upload-actions {
   margin-top: 32px;
+  padding: 20px;
+  display: flex;
+  flex: 1;
+  flex-direction: row;
 }
 
-.upload-title {
-  margin-bottom: 32px;
-}
-
-.upload-filename {
-  margin-bottom: 8px;
-}
-
-.upload-filerow {
+.upload-file-info {
+  width: 50%;
+  height: 100%;
   display: flex;
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.map-settings {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.upload-title {
+  margin-bottom: 32px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.upload-filename {
+  margin-right: 8px;
+}
+
+.upload-filerow {
+  display: flex;
   height: 50px;
   padding: 8px;
-  overflow: hidden;
+  align-items: center;
+  justify-content: space-between;
   box-sizing: border-box;
 }
 
-.panel-content {
-  padding: 32px;
-  width: 100%;
+.upload-file-selections {
   display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  box-sizing: border-box;
+  flex-direction: row;
+  align-items: center;
+}
+
+.checkbox-label {
+  margin-right: 15px;
+  margin-left: 5px;
+}
+
+.submit-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
 }
