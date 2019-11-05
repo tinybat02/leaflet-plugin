@@ -1,3 +1,9 @@
+.editor-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
 .upload {
   display: flex;
   flex-direction: column;
@@ -36,24 +42,8 @@
   padding: 20px;
   display: flex;
   flex: 1;
-  flex-direction: row;
-}
-
-.upload-file-info {
-  width: 50%;
-  height: 100%;
-  display: flex;
-  flex: 1;
   flex-direction: column;
   justify-content: space-between;
-}
-
-.map-settings {
-  width: 50%;
-  height: 100%;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
 }
 
 .upload-title {
@@ -90,4 +80,12 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+}
+
+.map-settings {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 275px;
+  padding: 20px;
 }

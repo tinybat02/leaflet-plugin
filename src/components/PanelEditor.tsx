@@ -1,14 +1,13 @@
 import React, { PureComponent } from 'react';
-import { PanelOptionsGroup, PanelEditorProps } from '@grafana/ui';
+import { PanelEditorProps, PanelOptionsGroup } from '@grafana/ui';
 import { MapOptions } from '../types';
 import Dropzone from './editor_elements/Dropzone';
+import MapSettings from './editor_elements/MapSettings';
 import './styles/PanelEditor.css';
 
 interface State {
   topology: File;
   polygon: File;
-  existingTopology: object;
-  existingPolygon: object;
   files: File[];
   uploaded: boolean;
   processing: boolean;
@@ -18,15 +17,16 @@ export class MapPanelEditor extends PureComponent<
   PanelEditorProps<MapOptions>,
   State
 > {
-  state = {
-    topology: null,
-    polygon: null,
-    existingTopology: this.props.options.topology,
-    existingPolygon: this.props.options.polygon,
-    files: [],
-    uploaded: false,
-    processing: false,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      topology: null,
+      polygon: null,
+      files: [],
+      uploaded: false,
+      processing: false,
+    };
+  }
 
   onFilesAdded = (files: File[]): void => {
     this.setState(prevState => ({
@@ -89,18 +89,18 @@ export class MapPanelEditor extends PureComponent<
   render() {
     return (
       <>
-        <PanelOptionsGroup title="Map Configuration">
-          <div className="upload">
-            <div className="upload-content">
-              <div className="upload-drop-area">
-                <p className="upload-title">Upload Json File</p>
-                <Dropzone
-                  onFilesAdded={this.onFilesAdded}
-                  disabled={this.state.uploaded}
-                />
-              </div>
-              <div className="upload-actions">
-                <div className="upload-file-info">
+        <div className="editor-grid-layout">
+          <PanelOptionsGroup title="Upload Topology">
+            <div className="upload">
+              <div className="upload-content">
+                <div className="upload-drop-area">
+                  <p className="upload-title">Upload Json File</p>
+                  <Dropzone
+                    onFilesAdded={this.onFilesAdded}
+                    disabled={this.state.uploaded}
+                  />
+                </div>
+                <div className="upload-actions">
                   <div>
                     {this.state.files.map((file, i) => {
                       return (
@@ -144,11 +144,18 @@ export class MapPanelEditor extends PureComponent<
                     )}
                   </div>
                 </div>
-                <div className="map-settings"></div>
               </div>
             </div>
-          </div>
-        </PanelOptionsGroup>
+          </PanelOptionsGroup>
+          <PanelOptionsGroup title="Map Settings">
+            <div className="map-settings">
+              <MapSettings
+                options={this.props.options}
+                onOptionsChange={this.props.onOptionsChange}
+              />
+            </div>
+          </PanelOptionsGroup>
+        </div>
       </>
     );
   }
