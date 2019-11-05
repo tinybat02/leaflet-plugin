@@ -1,6 +1,7 @@
+import { GeoJSONObject } from '@turf/helpers';
 export interface MapOptions {
-  topology: File;
-  polygon: File;
+  topology: GeoJSONObject;
+  polygon: GeoJSONObject;
 }
 
 export const defaults: MapOptions = {

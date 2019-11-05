@@ -18,14 +18,6 @@ export class MapPanelEditor extends PureComponent<
   PanelEditorProps<MapOptions>,
   State
 > {
-  /* constructor(props) {
-    super(props);
-
-    this.state = {
-      feedUrl: props.options.feedUrl,
-      polygons: [],
-    };
-  } */
   state = {
     topology: null,
     polygon: null,
