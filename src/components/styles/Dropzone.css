@@ -10,7 +10,7 @@
   font-size: 16px;
 }
 
-.dropzone-area {
+.dropzone .dropzone-area {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,10 +19,10 @@
   width: 64px;
 }
 
-.file-input {
+.dropzone .file-input {
   display: none;
 }
 
 .highlight {
-  background-color: #191919;
+  background-color: #333;
 }

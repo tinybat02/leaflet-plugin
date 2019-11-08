@@ -1,11 +1,17 @@
 import React, { PureComponent } from 'react';
 import { PanelProps } from '@grafana/ui';
-import L, { Map, FeatureGroup, CircleMarker, Polyline } from 'leaflet';
+import L, {
+  Map,
+  FeatureGroup,
+  CircleMarker,
+  Polyline,
+  TileLayer,
+  Control,
+} from 'leaflet';
 import { point, featureCollection, Point, Feature } from '@turf/helpers';
 import nearestPoint, { NearestPoint } from '@turf/nearest-point';
 import PathFinder from 'geojson-path-finder';
 import { MapOptions } from '../types';
-
 import 'leaflet/dist/leaflet.css';
 
 interface Props extends PanelProps<MapOptions> {}
@@ -21,7 +27,8 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   topology_traces: FeatureGroup;
   closest_traces: FeatureGroup;
   data_per_user: { [key: string]: [number, number][] };
-
+  layerControl: Control.Layers;
+  groundFloorLayer: TileLayer;
   state = {
     options: [],
     current_user: null,
@@ -29,23 +36,37 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
   componentDidMount() {
     const records = this.props.data.series[0].rows;
-    this.map = L.map('map', { preferCanvas: true }).setView(
-      [records[0][1], records[0][2]],
-      18
-    );
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      attribution:
-        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-      maxNativeZoom: 18,
-      maxZoom: 30,
-    }).addTo(this.map);
-    L.tileLayer(
-      'http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot0/{z}/{x}/{y}.png',
+    const openStreetMap = L.tileLayer(
+      'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       {
-        maxNativeZoom: 30,
+        attribution:
+          '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        maxNativeZoom: 18,
         maxZoom: 30,
       }
-    ).addTo(this.map);
+    );
+
+    const floorLayers: { [name: string]: TileLayer } = {};
+
+    for (let i = 1; i <= this.props.options.total_floors; i++) {
+      floorLayers[`Floor_${i - 1}`] = L.tileLayer(
+        `http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot${i -
+          1}/{z}/{x}/{y}.png`,
+        {
+          maxNativeZoom: 30,
+          maxZoom: 30,
+        }
+      );
+    }
+    this.groundFloorLayer = floorLayers['Floor_0'];
+    this.map = L.map('map', {
+      preferCanvas: true,
+      layers: [openStreetMap, this.groundFloorLayer],
+    }).setView([records[0][1], records[0][2]], 20);
+
+    if (this.props.options.total_floors > 1) {
+      this.layerControl = L.control.layers(floorLayers).addTo(this.map);
+    }
 
     const data_per_mac: { [key: string]: [number, number][] } = records.reduce(
       (obj, item) => {
@@ -54,6 +75,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       },
       {}
     );
+
     const limit3_data_per_mac = {};
     Object.keys(data_per_mac).forEach(key => {
       limit3_data_per_mac[key] = data_per_mac[key].slice(-3);
@@ -85,6 +107,33 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
       this.data_per_user = limit3_data_per_mac;
     }
+
+    if (options.total_floors != this.props.options.total_floors) {
+      if (this.layerControl) {
+        this.map.removeControl(this.layerControl);
+      }
+
+      if (this.groundFloorLayer) {
+        this.map.removeLayer(this.groundFloorLayer);
+      }
+
+      if (this.props.options.total_floors > 1) {
+        const floorLayers: { [name: string]: TileLayer } = {};
+
+        for (let i = 1; i <= this.props.options.total_floors; i++) {
+          floorLayers[`Floor_${i - 1}`] = L.tileLayer(
+            `http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot${i -
+              1}/{z}/{x}/{y}.png`,
+            {
+              maxNativeZoom: 30,
+              maxZoom: 30,
+            }
+          );
+        }
+        this.layerControl = L.control.layers(floorLayers).addTo(this.map);
+      }
+    }
+
     if (current_user != this.state.current_user) {
       if (this.traces) {
         this.map.removeLayer(this.traces);

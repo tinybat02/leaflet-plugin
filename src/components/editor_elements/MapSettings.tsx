@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
-import { MapOptions } from '../../types';
+import { PropsOptions } from '../../types';
 import '../styles/MapSettings.css';
 
-interface Props {
-  options: MapOptions;
-  onOptionsChange: (options: MapOptions) => void;
-}
-
-const MapSettings: React.FC<Props> = ({ options, onOptionsChange }) => {
-  const [totalFloors, setTotal]: [number, (num: number) => void] = useState(0);
+const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
+  const [totalFloors, setTotal] = useState<number>(options.total_floors);
 
   const handleRemove = (type: string) => () => {
     onOptionsChange({
@@ -21,19 +16,38 @@ const MapSettings: React.FC<Props> = ({ options, onOptionsChange }) => {
     setTotal(parseInt(e.target.value));
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (totalFloors >= 1) {
+      onOptionsChange({
+        ...options,
+        total_floors: totalFloors,
+      });
+    } else {
+      setTotal(options.total_floors);
+    }
+  };
+
   return (
     <div className="editor-row">
       <div className="section gf-form-group">
         <h5 className="section-heading">Floors Layer Control</h5>
-        <div className="gf-form">
-          <label className="gf-form-label width-8">Floors Total No.</label>
-          <input
-            type="number"
-            value={totalFloors}
-            onInput={handleInputTotalFloors}
-            className="gf-form-input max-width-4 ng-pristine ng-valid ng-not-empty ng-touched"
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="gf-form">
+            <label className="gf-form-label width-8">Floors Total No.</label>
+            <input
+              type="number"
+              value={totalFloors}
+              onInput={handleInputTotalFloors}
+              className="gf-form-input max-width-4 ng-pristine ng-valid ng-not-empty ng-touched"
+            />
+          </div>
+          <div className="apply-floor-button">
+            <button type="submit" className="btn btn-outline-primary">
+              Apply
+            </button>
+          </div>
+        </form>
       </div>
       <div className="section gf-form-group">
         <h5 className="section-heading">Topology & Polygon</h5>

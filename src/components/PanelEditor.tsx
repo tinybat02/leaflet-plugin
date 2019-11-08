@@ -17,16 +17,13 @@ export class MapPanelEditor extends PureComponent<
   PanelEditorProps<MapOptions>,
   State
 > {
-  constructor(props) {
-    super(props);
-    this.state = {
-      topology: null,
-      polygon: null,
-      files: [],
-      uploaded: false,
-      processing: false,
-    };
-  }
+  state: State = {
+    topology: null,
+    polygon: null,
+    files: [],
+    uploaded: false,
+    processing: false,
+  };
 
   onFilesAdded = (files: File[]): void => {
     this.setState(prevState => ({
@@ -91,58 +88,56 @@ export class MapPanelEditor extends PureComponent<
       <>
         <div className="editor-grid-layout">
           <PanelOptionsGroup title="Upload Topology">
-            <div className="upload">
-              <div className="upload-content">
-                <div className="upload-drop-area">
-                  <p className="upload-title">Upload Json File</p>
-                  <Dropzone
-                    onFilesAdded={this.onFilesAdded}
-                    disabled={this.state.uploaded}
-                  />
-                </div>
-                <div className="upload-actions">
-                  <div>
-                    {this.state.files.map((file, i) => {
-                      return (
-                        <div key={i} className="upload-filerow">
-                          <span className="upload-filename">{file.name}</span>
+            <div className="upload-area">
+              <div className="drop-area">
+                <p className="upload-title">Upload Json File</p>
+                <Dropzone
+                  onFilesAdded={this.onFilesAdded}
+                  disabled={this.state.uploaded}
+                />
+              </div>
+              <div className="upload-actions">
+                <div>
+                  {this.state.files.map((file, i) => {
+                    return (
+                      <div key={i} className="upload-filerow">
+                        <span className="upload-filename">{file.name}</span>
 
-                          <div className="upload-file-selections">
-                            <input
-                              type="radio"
-                              onChange={this.handleTopologySelect(file)}
-                              checked={
-                                this.state.topology
-                                  ? this.state.topology.name === file.name
-                                  : false
-                              }
-                            />
-                            <label className="checkbox-label">Topology</label>
-                            <input
-                              type="radio"
-                              onChange={this.handlePolygonSelect(file)}
-                              checked={
-                                this.state.polygon
-                                  ? this.state.polygon.name === file.name
-                                  : false
-                              }
-                            />
-                            <label className="checkbox-label">Polygon</label>
-                          </div>
+                        <div className="upload-file-selections">
+                          <input
+                            type="radio"
+                            onChange={this.handleTopologySelect(file)}
+                            checked={
+                              this.state.topology
+                                ? this.state.topology.name === file.name
+                                : false
+                            }
+                          />
+                          <label className="checkbox-label">Topology</label>
+                          <input
+                            type="radio"
+                            onChange={this.handlePolygonSelect(file)}
+                            checked={
+                              this.state.polygon
+                                ? this.state.polygon.name === file.name
+                                : false
+                            }
+                          />
+                          <label className="checkbox-label">Polygon</label>
                         </div>
-                      );
-                    })}
-                  </div>
-                  <div className="submit-button">
-                    {(this.state.topology || this.state.polygon) && (
-                      <button
-                        className="btn btn-outline-primary"
-                        onClick={this.handleSubmit}
-                      >
-                        Submit
-                      </button>
-                    )}
-                  </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="submit-button">
+                  {(this.state.topology || this.state.polygon) && (
+                    <button
+                      className="btn btn-outline-primary"
+                      onClick={this.handleSubmit}
+                    >
+                      Submit
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

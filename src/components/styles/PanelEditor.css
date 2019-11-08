@@ -4,24 +4,24 @@
   gap: 10px;
 }
 
-.upload {
+.map-settings {
   display: flex;
-  flex-direction: column;
   flex: 1;
-  align-items: flex-start;
-  text-align: left;
-  overflow: hidden;
+  flex-direction: column;
+  height: 275px;
+  padding: 20px;
 }
 
-.upload-content {
+.upload-area {
   display: flex;
   flex-direction: row;
+  flex: 1;
   padding-top: 16px;
   box-sizing: border-box;
   width: 100%;
 }
 
-.upload-drop-area {
+.upload-area .drop-area {
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -29,15 +29,7 @@
   align-items: center;
 }
 
-.upload-file {
-  margin-left: 32px;
-  align-items: flex-start;
-  justify-content: flex-start;
-  flex: 1;
-  overflow: auto;
-}
-
-.upload-actions {
+.upload-area .upload-actions {
   margin-top: 32px;
   padding: 20px;
   display: flex;
@@ -46,17 +38,13 @@
   justify-content: space-between;
 }
 
-.upload-title {
+.upload-area .drop-area .upload-title {
   margin-bottom: 32px;
   font-size: 1.2em;
   font-weight: bold;
 }
 
-.upload-filename {
-  margin-right: 8px;
-}
-
-.upload-filerow {
+.upload-actions .upload-filerow {
   display: flex;
   height: 50px;
   padding: 8px;
@@ -65,7 +53,11 @@
   box-sizing: border-box;
 }
 
-.upload-file-selections {
+.upload-actions .upload-filerow .upload-filename {
+  margin-right: 8px;
+}
+
+.upload-actions .upload-filerow .upload-file-selections {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -76,16 +68,12 @@
   margin-left: 5px;
 }
 
-.submit-button {
+.upload-area .upload-actions .submit-button {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
 }
 
-.map-settings {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  height: 275px;
-  padding: 20px;
+.leaflet-control-layers-toggle {
+  background-image: url('https://i.ibb.co/3vzzcDj/layers.png');
 }

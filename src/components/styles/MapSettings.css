@@ -11,3 +11,10 @@
   height: 20px;
   border-radius: 50%;
 }
+
+.apply-floor-button {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
