@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { PropsOptions } from '../../types';
-import '../styles/MapSettings.css';
+import React, { useState } from "react";
+import { PropsOptions } from "../../types";
+import "../styles/MapSettings.css";
 
 const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
   const [totalFloors, setTotal] = useState<number>(options.total_floors);
@@ -8,7 +8,7 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
   const handleRemove = (type: string) => () => {
     onOptionsChange({
       ...options,
-      [type]: null,
+      [type]: null
     });
   };
 
@@ -21,17 +21,24 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
     if (totalFloors >= 1) {
       onOptionsChange({
         ...options,
-        total_floors: totalFloors,
+        total_floors: totalFloors
       });
     } else {
       setTotal(options.total_floors);
     }
   };
 
+  const handleOnlyMap = () => {
+    onOptionsChange({
+      ...options,
+      onlyMap: !options.onlyMap
+    });
+  };
+
   return (
     <div className="editor-row">
       <div className="section gf-form-group">
-        <h5 className="section-heading">Floors Layer Control</h5>
+        <h5 className="section-heading">Map & Floor Control</h5>
         <form onSubmit={handleSubmit}>
           <div className="gf-form">
             <label className="gf-form-label width-8">Floors Total No.</label>
@@ -42,13 +49,16 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
               className="gf-form-input max-width-4 ng-pristine ng-valid ng-not-empty ng-touched"
             />
           </div>
-          <div className="apply-floor-button">
-            <button type="submit" className="btn btn-outline-primary">
-              Apply
-            </button>
-          </div>
         </form>
+        <div className="gf-form" style={{ marginTop: 10 }}>
+          <label className="gf-form-label width-8">Only Map</label>
+          <div className="gf-form-switch" onClick={handleOnlyMap}>
+            <input type="checkbox" checked={options.onlyMap} />
+            <span className="gf-form-switch__slider"></span>
+          </div>
+        </div>
       </div>
+
       <div className="section gf-form-group">
         <h5 className="section-heading">Topology & Polygon</h5>
 
@@ -57,14 +67,14 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
           <div className="setting-circle-wrapper">
             <div
               className="settings-circle"
-              style={{ background: options.topology ? '#32c132' : '#666' }}
+              style={{ background: options.topology ? "#32c132" : "#666" }}
             />
           </div>
           {options.topology && (
             <button
               className="btn btn-small btn-outline-primary"
               style={{ marginTop: 7 }}
-              onClick={handleRemove('topology')}
+              onClick={handleRemove("topology")}
             >
               Remove
             </button>
@@ -75,21 +85,20 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
           <div className="setting-circle-wrapper">
             <div
               className="settings-circle"
-              style={{ background: options.polygon ? '#32c132' : '#666' }}
+              style={{ background: options.polygon ? "#32c132" : "#666" }}
             />
           </div>
           {options.polygon && (
             <button
               className="btn btn-small btn-outline-primary"
               style={{ marginTop: 7 }}
-              onClick={handleRemove('polygon')}
+              onClick={handleRemove("polygon")}
             >
               Remove
             </button>
           )}
         </div>
       </div>
-      <div className="section gf-form-group"></div>
     </div>
   );
 };

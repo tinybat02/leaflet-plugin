@@ -1,5 +1,5 @@
-import React, { PureComponent } from 'react';
-import { PanelProps } from '@grafana/ui';
+import React, { PureComponent } from "react";
+import { PanelProps } from "@grafana/ui";
 import L, {
   Map,
   FeatureGroup,
@@ -7,12 +7,13 @@ import L, {
   Polyline,
   TileLayer,
   Control,
-} from 'leaflet';
-import { point, featureCollection, Point, Feature } from '@turf/helpers';
-import nearestPoint, { NearestPoint } from '@turf/nearest-point';
-import PathFinder from 'geojson-path-finder';
-import { MapOptions } from '../types';
-import 'leaflet/dist/leaflet.css';
+  LayerGroup
+} from "leaflet";
+import { point, featureCollection, Point, Feature } from "@turf/helpers";
+import nearestPoint, { NearestPoint } from "@turf/nearest-point";
+import PathFinder from "geojson-path-finder";
+import { MapOptions } from "../types";
+import "leaflet/dist/leaflet.css";
 
 interface Props extends PanelProps<MapOptions> {}
 
@@ -29,44 +30,53 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   data_per_user: { [key: string]: [number, number][] };
   layerControl: Control.Layers;
   groundFloorLayer: TileLayer;
+  markersLayer: LayerGroup<CircleMarker>;
   state = {
     options: [],
-    current_user: null,
+    current_user: null
   };
 
   componentDidMount() {
     const records = this.props.data.series[0].rows;
     const openStreetMap = L.tileLayer(
-      'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
       {
         attribution:
-          '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-        maxNativeZoom: 18,
-        maxZoom: 30,
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxNativeZoom: 19,
+        maxZoom: 30
       }
     );
 
     const floorLayers: { [name: string]: TileLayer } = {};
 
     for (let i = 1; i <= this.props.options.total_floors; i++) {
-      floorLayers[`Floor_${i - 1}`] = L.tileLayer(
+      floorLayers[`Floor ${i - 1}`] = L.tileLayer(
         `http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot${i -
           1}/{z}/{x}/{y}.png`,
         {
           maxNativeZoom: 30,
-          maxZoom: 30,
+          maxZoom: 30
         }
       );
     }
-    this.groundFloorLayer = floorLayers['Floor_0'];
-    this.map = L.map('map', {
+    this.groundFloorLayer = floorLayers["Floor 0"];
+    this.map = L.map("map", {
       preferCanvas: true,
-      layers: [openStreetMap, this.groundFloorLayer],
+      layers: [openStreetMap, this.groundFloorLayer]
     }).setView([records[0][1], records[0][2]], 20);
 
-    if (this.props.options.total_floors > 1) {
-      this.layerControl = L.control.layers(floorLayers).addTo(this.map);
-    }
+    const markers = records.map(row =>
+      L.circleMarker([row[1], row[2]], {
+        radius: 3,
+        renderer: L.canvas()
+      }).bindPopup(`<h3>${row[1]}, ${row[2]}</h3>`)
+    );
+    this.markersLayer = L.layerGroup(markers);
+
+    this.layerControl = L.control
+      .layers(floorLayers, { Marker: this.markersLayer })
+      .addTo(this.map);
 
     const data_per_mac: { [key: string]: [number, number][] } = records.reduce(
       (obj, item) => {
@@ -83,7 +93,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
     this.setState({
       ...this.state,
-      options: Object.keys(limit3_data_per_mac),
+      options: Object.keys(limit3_data_per_mac)
     });
     this.data_per_user = limit3_data_per_mac;
   }
@@ -91,6 +101,20 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   componentDidUpdate({ data, options }, { current_user }) {
     if (data.series[0].rows != this.props.data.series[0].rows) {
       const records = this.props.data.series[0].rows;
+
+      if (this.markersLayer) {
+        this.layerControl.removeLayer(this.markersLayer);
+      }
+
+      const markers = records.map(row =>
+        L.circleMarker([row[1], row[2]], {
+          radius: 3,
+          renderer: L.canvas()
+        }).bindPopup(`<h3>${row[1]}, ${row[2]}</h3>`)
+      );
+      this.markersLayer = L.layerGroup(markers);
+      this.layerControl.addOverlay(this.markersLayer, "Marker");
+
       const data_per_mac: { string: number[] } = records.reduce((obj, item) => {
         (obj[item[0]] = obj[item[0]] || []).push([item[1], item[2]]);
         return obj;
@@ -102,7 +126,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
       this.setState({
         ...this.state,
-        options: Object.keys(limit3_data_per_mac),
+        options: Object.keys(limit3_data_per_mac)
       });
 
       this.data_per_user = limit3_data_per_mac;
@@ -117,21 +141,23 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         this.map.removeLayer(this.groundFloorLayer);
       }
 
-      if (this.props.options.total_floors > 1) {
-        const floorLayers: { [name: string]: TileLayer } = {};
+      const floorLayers: { [name: string]: TileLayer } = {};
 
-        for (let i = 1; i <= this.props.options.total_floors; i++) {
-          floorLayers[`Floor_${i - 1}`] = L.tileLayer(
-            `http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot${i -
-              1}/{z}/{x}/{y}.png`,
-            {
-              maxNativeZoom: 30,
-              maxZoom: 30,
-            }
-          );
-        }
-        this.layerControl = L.control.layers(floorLayers).addTo(this.map);
+      for (let i = 1; i <= this.props.options.total_floors; i++) {
+        floorLayers[`Floor ${i - 1}`] = L.tileLayer(
+          `http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot${i -
+            1}/{z}/{x}/{y}.png`,
+          {
+            maxNativeZoom: 30,
+            maxZoom: 30
+          }
+        );
       }
+      this.groundFloorLayer = floorLayers["Floor 0"].addTo(this.map);
+
+      this.layerControl = L.control
+        .layers(floorLayers, { Marker: this.markersLayer })
+        .addTo(this.map);
     }
 
     if (current_user != this.state.current_user) {
@@ -147,7 +173,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         this.map.removeLayer(this.closest_traces);
       }
 
-      if (this.state.current_user != 'None') {
+      if (this.state.current_user != "None") {
         const trace_data = this.data_per_user[this.state.current_user];
 
         const markers_lines: (CircleMarker | Polyline)[] = [];
@@ -155,19 +181,19 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         markers_lines.push(
           L.circleMarker(trace_data[0], {
             radius: 3,
-            renderer: L.canvas(),
+            renderer: L.canvas()
           })
         );
         for (let i = 0; i < trace_data.length - 1; i++) {
           markers_lines.push(
             L.polyline([trace_data[i], trace_data[i + 1]], {
-              renderer: L.canvas(),
+              renderer: L.canvas()
             })
           );
           markers_lines.push(
             L.circleMarker(trace_data[i + 1], {
               radius: 3,
-              renderer: L.canvas(),
+              renderer: L.canvas()
             })
           );
         }
@@ -176,7 +202,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           const closest_data: NearestPoint[] = [];
           const topology_nodes = featureCollection<Point>(
             options.topology.features.filter(
-              (element: Feature) => element.geometry.type == 'Point'
+              (element: Feature) => element.geometry.type == "Point"
             )
           );
           trace_data.map(location => {
@@ -187,9 +213,9 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           closest_data.map(single => {
             closest_markers.push(
               L.circleMarker(single.geometry.coordinates as [number, number], {
-                color: 'red',
+                color: "red",
                 radius: 4,
-                renderer: L.canvas(),
+                renderer: L.canvas()
               })
             );
           });
@@ -207,7 +233,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
             for (let i = 1; i < closest_data.length - 1; i++) {
               const path_result = (
                 pathFinder.findPath(closest_data[i], closest_data[i + 1]) || {
-                  path: [],
+                  path: []
                 }
               ).path;
               //console.log('index ', i);
@@ -223,24 +249,24 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
             if (path_finding.length != 0) {
               topology_markers_lines.push(
                 L.circleMarker(path_finding[0], {
-                  color: 'yellow',
+                  color: "yellow",
                   radius: 3,
-                  renderer: L.canvas(),
+                  renderer: L.canvas()
                 })
               );
               for (let i = 0; i < path_finding.length - 1; i++) {
                 topology_markers_lines.push(
                   L.polyline([path_finding[i], path_finding[i + 1]], {
-                    color: 'yellow',
-                    renderer: L.canvas(),
+                    color: "yellow",
+                    renderer: L.canvas()
                   })
                 );
 
                 topology_markers_lines.push(
                   L.circleMarker(path_finding[i + 1], {
-                    color: 'yellow',
+                    color: "yellow",
                     radius: 3,
-                    renderer: L.canvas(),
+                    renderer: L.canvas()
                   })
                 );
               }
@@ -263,26 +289,34 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   render() {
     const { options, current_user } = this.state;
     return (
-      <div style={{ width: '100%', height: '100%' }}>
-        <div style={{ padding: 20 }}>
-          <div>Select user: </div>
-          <select
-            id="selector"
-            onChange={this.handleSelector}
-            value={current_user}
-            style={{ width: 500 }}
-          >
-            <option value="None">None</option>
-            {options.map(opt => {
-              return (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              );
-            })}
-          </select>
-        </div>
-        <div id="map" style={{ width: '100%', height: '85%' }}></div>
+      <div style={{ width: "100%", height: "100%" }}>
+        {!this.props.options.onlyMap && (
+          <div style={{ padding: 20 }}>
+            <div>Select user: </div>
+            <select
+              id="selector"
+              onChange={this.handleSelector}
+              value={current_user}
+              style={{ width: 500 }}
+            >
+              <option value="None">None</option>
+              {options.map(opt => {
+                return (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+        )}
+        <div
+          id="map"
+          style={{
+            width: "100%",
+            height: this.props.options.onlyMap ? "100%" : "85%"
+          }}
+        ></div>
       </div>
     );
   }
