@@ -37,8 +37,6 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   };
 
   componentDidMount() {
-    console.log("data_____________________________________");
-    console.log(this.props.data);
     const records = this.props.data.series[0].rows;
     const openStreetMap = L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
@@ -289,7 +287,10 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   };
 
   render() {
+    console.log("data_____________________________________");
+    console.log(this.props.data);
     const { options, current_user } = this.state;
+
     return (
       <div style={{ width: "100%", height: "100%" }}>
         {!this.props.options.onlyMap && (
