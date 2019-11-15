@@ -37,9 +37,8 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   };
 
   componentDidMount() {
-    console.log("data_____________________________________");
-    console.log(this.props.data);
-    const records = this.props.data.series[0].rows;
+    const { fields } = this.props.data.series[0];
+
     const openStreetMap = L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
       {
@@ -63,75 +62,76 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       );
     }
     this.groundFloorLayer = floorLayers["Floor 0"];
+
     this.map = L.map("map", {
       preferCanvas: true,
       layers: [openStreetMap, this.groundFloorLayer]
-    }).setView([records[0][1], records[0][2]], 20);
+    }).setView([fields[1].values.buffer[0], fields[2].values.buffer[0]], 20);
 
-    const markers = records.map(row =>
-      L.circleMarker([row[1], row[2]], {
-        radius: 3,
-        renderer: L.canvas()
-      }).bindPopup(`<h3>${row[1]}, ${row[2]}</h3>`)
-    );
+    const markers: CircleMarker[] = [];
+    const data_per_mac: { [key: string]: [number, number][] } = {};
+    for (let i = 0; i < this.props.data.series[0].length; i++) {
+      markers.push(
+        L.circleMarker(
+          [fields[1].values.buffer[i], fields[2].values.buffer[i]],
+          {
+            radius: 3,
+            renderer: L.canvas()
+          }
+        ).bindPopup(`${fields[0].values.buffer[i]}`)
+      );
+
+      (data_per_mac[fields[0].values.buffer[i]] =
+        data_per_mac[fields[0].values.buffer[i]] || []).push([
+        fields[1].values.buffer[i],
+        fields[2].values.buffer[i]
+      ]);
+    }
+
     this.markersLayer = L.layerGroup(markers);
 
     this.layerControl = L.control
       .layers(floorLayers, { Marker: this.markersLayer })
       .addTo(this.map);
 
-    const data_per_mac: { [key: string]: [number, number][] } = records.reduce(
-      (obj, item) => {
-        (obj[item[0]] = obj[item[0]] || []).push([item[1], item[2]]);
-        return obj;
-      },
-      {}
-    );
+    this.setState({ options: Object.keys(data_per_mac) });
 
-    const limit3_data_per_mac = {};
-    Object.keys(data_per_mac).forEach(key => {
-      limit3_data_per_mac[key] = data_per_mac[key].slice(-3);
-    });
-
-    this.setState({
-      ...this.state,
-      options: Object.keys(limit3_data_per_mac)
-    });
-    this.data_per_user = limit3_data_per_mac;
+    this.data_per_user = data_per_mac;
   }
 
   componentDidUpdate({ data, options }, { current_user }) {
-    if (data.series[0].rows != this.props.data.series[0].rows) {
-      const records = this.props.data.series[0].rows;
+    if (data.series[0] != this.props.data.series[0]) {
+      const { fields } = this.props.data.series[0];
 
       if (this.markersLayer) {
         this.layerControl.removeLayer(this.markersLayer);
       }
 
-      const markers = records.map(row =>
-        L.circleMarker([row[1], row[2]], {
-          radius: 3,
-          renderer: L.canvas()
-        }).bindPopup(`<h3>${row[1]}, ${row[2]}</h3>`)
-      );
+      const markers: CircleMarker[] = [];
+      const data_per_mac: { [key: string]: [number, number][] } = {};
+      for (let i = 0; i < this.props.data.series[0].length; i++) {
+        markers.push(
+          L.circleMarker(
+            [fields[1].values.buffer[i], fields[2].values.buffer[i]],
+            {
+              radius: 3,
+              renderer: L.canvas()
+            }
+          ).bindPopup(`${fields[0].values.buffer[i]}`)
+        );
+
+        (data_per_mac[fields[0].values.buffer[i]] =
+          data_per_mac[fields[0].values.buffer[i]] || []).push([
+          fields[1].values.buffer[i],
+          fields[2].values.buffer[i]
+        ]);
+      }
+
       this.markersLayer = L.layerGroup(markers);
       this.layerControl.addOverlay(this.markersLayer, "Marker");
 
-      const data_per_mac: { string: number[] } = records.reduce((obj, item) => {
-        (obj[item[0]] = obj[item[0]] || []).push([item[1], item[2]]);
-        return obj;
-      }, {});
-      const limit3_data_per_mac = {};
-      Object.keys(data_per_mac).forEach(key => {
-        limit3_data_per_mac[key] = data_per_mac[key].slice(-3);
-      });
-
-      this.setState({
-        ...this.state,
-        options: Object.keys(limit3_data_per_mac)
-      });
-
-      this.data_per_user = limit3_data_per_mac;
+      this.setState({ options: Object.keys(data_per_mac) });
+      this.data_per_user = data_per_mac;
     }
 
     if (options.total_floors != this.props.options.total_floors) {
