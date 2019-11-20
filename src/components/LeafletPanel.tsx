@@ -13,6 +13,7 @@ import { point, featureCollection, Point, Feature } from "@turf/helpers";
 import nearestPoint, { NearestPoint } from "@turf/nearest-point";
 import PathFinder from "geojson-path-finder";
 import { MapOptions } from "../types";
+import nanoid from "nanoid";
 import "leaflet.heat/dist/leaflet-heat";
 import "leaflet/dist/leaflet.css";
 
@@ -24,6 +25,7 @@ interface MapState {
 }
 
 export class LeafletPanel extends PureComponent<Props, MapState> {
+  id = "id" + nanoid();
   map: Map;
   traces: FeatureGroup;
   topology_traces: FeatureGroup;
@@ -67,7 +69,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     this.groundFloorLayer =
       floorLayers[`Floor ${this.props.options.default_floor}`];
 
-    this.map = L.map("leaflet-map", {
+    this.map = L.map(this.id, {
       layers: [openStreetMap, this.groundFloorLayer]
     }).setView(
       [fields[1].values.buffer[0], fields[2].values.buffer[0]],
@@ -422,7 +424,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           </div>
         )}
         <div
-          id="leaflet-map"
+          id={this.id}
           style={{
             width: "100%",
             height:
