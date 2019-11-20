@@ -29,10 +29,33 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
   };
 
   const handleOnlyMap = () => {
-    onOptionsChange({
-      ...options,
-      onlyMap: !options.onlyMap
-    });
+    if (!options.onlyMap) {
+      onOptionsChange({
+        ...options,
+        onlyMap: !options.onlyMap,
+        heatMap: false
+      });
+    } else {
+      onOptionsChange({
+        ...options,
+        onlyMap: !options.onlyMap
+      });
+    }
+  };
+
+  const handleHeatMap = () => {
+    if (!options.heatMap) {
+      onOptionsChange({
+        ...options,
+        onlyMap: false,
+        heatMap: !options.heatMap
+      });
+    } else {
+      onOptionsChange({
+        ...options,
+        heatMap: !options.heatMap
+      });
+    }
   };
 
   return (
@@ -51,9 +74,16 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
           </div>
         </form>
         <div className="gf-form" style={{ marginTop: 10 }}>
-          <label className="gf-form-label width-8">Only Map</label>
+          <label className="gf-form-label width-8">Circle Markers</label>
           <div className="gf-form-switch" onClick={handleOnlyMap}>
             <input type="checkbox" checked={options.onlyMap} />
+            <span className="gf-form-switch__slider"></span>
+          </div>
+        </div>
+        <div className="gf-form">
+          <label className="gf-form-label width-8">Heat Map</label>
+          <div className="gf-form-switch" onClick={handleHeatMap}>
+            <input type="checkbox" checked={options.heatMap} />
             <span className="gf-form-switch__slider"></span>
           </div>
         </div>

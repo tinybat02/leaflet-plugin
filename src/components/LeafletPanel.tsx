@@ -13,6 +13,7 @@ import { point, featureCollection, Point, Feature } from "@turf/helpers";
 import nearestPoint, { NearestPoint } from "@turf/nearest-point";
 import PathFinder from "geojson-path-finder";
 import { MapOptions } from "../types";
+import "leaflet.heat/dist/leaflet-heat";
 import "leaflet/dist/leaflet.css";
 
 interface Props extends PanelProps<MapOptions> {}
@@ -31,6 +32,8 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   layerControl: Control.Layers;
   groundFloorLayer: TileLayer;
   markersLayer: LayerGroup<CircleMarker>;
+  heatmapLayer: any;
+
   state = {
     options: [],
     current_user: null
@@ -68,6 +71,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     }).setView([fields[1].values.buffer[0], fields[2].values.buffer[0]], 20);
 
     const markers: CircleMarker[] = [];
+    const heats: [number, number, number][] = [];
     const data_per_mac: { [key: string]: [number, number][] } = {};
     for (let i = 0; i < this.props.data.series[0].length; i++) {
       markers.push(
@@ -79,6 +83,8 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         ).bindPopup(`${fields[0].values.buffer[i]}`)
       );
 
+      heats.push([fields[1].values.buffer[i], fields[2].values.buffer[i], 0.2]);
+
       (data_per_mac[fields[0].values.buffer[i]] =
         data_per_mac[fields[0].values.buffer[i]] || []).push([
         fields[1].values.buffer[i],
@@ -88,6 +94,13 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
     if (this.props.options.onlyMap) {
       this.markersLayer = L.layerGroup(markers).addTo(this.map);
+    }
+
+    if (this.props.options.heatMap) {
+      this.heatmapLayer = L.heatLayer(heats, {
+        radius: 25,
+        minOpacity: 0.3
+      }).addTo(this.map);
     }
 
     this.layerControl = L.control.layers(floorLayers).addTo(this.map);
@@ -105,7 +118,12 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         this.map.removeLayer(this.markersLayer);
       }
 
+      if (this.heatmapLayer) {
+        this.map.removeLayer(this.heatmapLayer);
+      }
+
       const markers: CircleMarker[] = [];
+      const heats: [number, number, number][] = [];
       const data_per_mac: { [key: string]: [number, number][] } = {};
       for (let i = 0; i < this.props.data.series[0].length; i++) {
         markers.push(
@@ -116,6 +134,12 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
             }
           ).bindPopup(`${fields[0].values.buffer[i]}`)
         );
+
+        heats.push([
+          fields[1].values.buffer[i],
+          fields[2].values.buffer[i],
+          0.2
+        ]);
 
         (data_per_mac[fields[0].values.buffer[i]] =
           data_per_mac[fields[0].values.buffer[i]] || []).push([
@@ -128,12 +152,23 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         this.markersLayer = L.layerGroup(markers).addTo(this.map);
       }
 
+      if (this.props.options.heatMap) {
+        this.heatmapLayer = L.heatLayer(heats, {
+          radius: 25,
+          minOpacity: 0.3
+        }).addTo(this.map);
+      }
+
       this.setState({ options: Object.keys(data_per_mac) });
       this.data_per_user = data_per_mac;
     }
 
     if (options.onlyMap != this.props.options.onlyMap) {
       if (this.props.options.onlyMap) {
+        if (this.heatmapLayer) {
+          this.map.removeLayer(this.heatmapLayer);
+        }
+
         const { fields } = this.props.data.series[0];
         const markers: CircleMarker[] = [];
         for (let i = 0; i < this.props.data.series[0].length; i++) {
@@ -147,12 +182,37 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           );
         }
 
-        if (this.props.options.onlyMap) {
-          this.markersLayer = L.layerGroup(markers).addTo(this.map);
-        }
+        this.markersLayer = L.layerGroup(markers).addTo(this.map);
       } else {
         if (this.markersLayer) {
           this.map.removeLayer(this.markersLayer);
+        }
+      }
+    }
+
+    if (options.heatMap != this.props.options.heatMap) {
+      if (this.props.options.heatMap) {
+        if (this.markersLayer) {
+          this.map.removeLayer(this.markersLayer);
+        }
+
+        const { fields } = this.props.data.series[0];
+        const heats: [number, number, number][] = [];
+        for (let i = 0; i < this.props.data.series[0].length; i++) {
+          heats.push([
+            fields[1].values.buffer[i],
+            fields[2].values.buffer[i],
+            0.2
+          ]);
+        }
+
+        this.heatmapLayer = L.heatLayer(heats, {
+          radius: 25,
+          minOpacity: 0.3
+        }).addTo(this.map);
+      } else {
+        if (this.heatmapLayer) {
+          this.map.removeLayer(this.heatmapLayer);
         }
       }
     }
@@ -306,7 +366,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
     return (
       <div style={{ width: "100%", height: "100%" }}>
-        {!this.props.options.onlyMap && (
+        {!(this.props.options.onlyMap || this.props.options.heatMap) && (
           <div style={{ padding: 20 }}>
             <div>Select user: </div>
             <select

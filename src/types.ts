@@ -4,13 +4,15 @@ export interface MapOptions {
   topology: GeoJSONObject;
   polygon: GeoJSONObject;
   onlyMap: boolean;
+  heatMap: boolean;
 }
 
 export const defaults: MapOptions = {
   total_floors: 1,
   topology: null,
   polygon: null,
-  onlyMap: true
+  onlyMap: true,
+  heatMap: false
 };
 
 export interface PropsOptions {
