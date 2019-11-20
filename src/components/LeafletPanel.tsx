@@ -104,7 +104,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
     if (this.props.options.heatMap) {
       this.heatmapLayer = L.heatLayer(heats, {
-        radius: 25,
+        radius: 20,
         minOpacity: 0.3
       }).addTo(this.map);
     }
