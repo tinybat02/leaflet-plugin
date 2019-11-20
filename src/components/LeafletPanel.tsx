@@ -63,7 +63,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     }
     this.groundFloorLayer = floorLayers["Floor 0"];
 
-    this.map = L.map("map", {
+    this.map = L.map("leaflet-map", {
       layers: [openStreetMap, this.groundFloorLayer]
     }).setView([fields[1].values.buffer[0], fields[2].values.buffer[0]], 20);
 
@@ -327,7 +327,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           </div>
         )}
         <div
-          id="map"
+          id="leaflet-map"
           style={{
             width: "100%",
             height: this.props.options.onlyMap ? "100%" : "85%"
