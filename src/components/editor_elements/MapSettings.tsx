@@ -7,6 +7,7 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
   const [defaultFloor, setDefaultFloor] = useState<number>(
     options.default_floor
   );
+  const [zoomLevel, setZoomLevel] = useState<number>(options.zoom_level);
 
   const handleRemove = (type: string) => () => {
     onOptionsChange({
@@ -44,6 +45,22 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
       });
     } else {
       setDefaultFloor(options.default_floor);
+    }
+  };
+
+  const handleInputZoomLevel = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setZoomLevel(parseInt(e.target.value));
+  };
+
+  const handleSubmitZoomLevel = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (zoomLevel >= 10 && zoomLevel <= 30) {
+      onOptionsChange({
+        ...options,
+        zoom_level: zoomLevel
+      });
+    } else {
+      setZoomLevel(options.zoom_level);
     }
   };
 
@@ -99,6 +116,17 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
               type="number"
               value={defaultFloor}
               onInput={handleInputDefaultFloor}
+              className="gf-form-input max-width-4 ng-pristine ng-valid ng-not-empty ng-touched"
+            />
+          </div>
+        </form>
+        <form onSubmit={handleSubmitZoomLevel}>
+          <div className="gf-form">
+            <label className="gf-form-label width-8">Zoom Level</label>
+            <input
+              type="number"
+              value={zoomLevel}
+              onInput={handleInputZoomLevel}
               className="gf-form-input max-width-4 ng-pristine ng-valid ng-not-empty ng-touched"
             />
           </div>

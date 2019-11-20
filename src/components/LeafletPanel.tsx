@@ -69,7 +69,10 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
     this.map = L.map("leaflet-map", {
       layers: [openStreetMap, this.groundFloorLayer]
-    }).setView([fields[1].values.buffer[0], fields[2].values.buffer[0]], 20);
+    }).setView(
+      [fields[1].values.buffer[0], fields[2].values.buffer[0]],
+      this.props.options.zoom_level
+    );
 
     const markers: CircleMarker[] = [];
     const heats: [number, number, number][] = [];
@@ -271,6 +274,10 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       ].addTo(this.map);
 
       this.layerControl = L.control.layers(floorLayers).addTo(this.map);
+    }
+
+    if (options.zoom_level != this.props.options.zoom_level) {
+      this.map.setZoom(this.props.options.zoom_level);
     }
 
     if (current_user != this.state.current_user) {
