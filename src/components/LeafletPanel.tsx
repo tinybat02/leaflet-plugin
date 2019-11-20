@@ -88,11 +88,11 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       ]);
     }
 
-    this.markersLayer = L.layerGroup(markers);
+    if (this.props.options.onlyMap) {
+      this.markersLayer = L.layerGroup(markers).addTo(this.map);
+    }
 
-    this.layerControl = L.control
-      .layers(floorLayers, { Marker: this.markersLayer })
-      .addTo(this.map);
+    this.layerControl = L.control.layers(floorLayers).addTo(this.map);
 
     this.setState({ options: Object.keys(data_per_mac) });
 
@@ -104,7 +104,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       const { fields } = this.props.data.series[0];
 
       if (this.markersLayer) {
-        this.layerControl.removeLayer(this.markersLayer);
+        this.map.removeLayer(this.markersLayer);
       }
 
       const markers: CircleMarker[] = [];
@@ -127,11 +127,38 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         ]);
       }
 
-      this.markersLayer = L.layerGroup(markers);
-      this.layerControl.addOverlay(this.markersLayer, "Marker");
+      if (this.props.options.onlyMap) {
+        this.markersLayer = L.layerGroup(markers).addTo(this.map);
+      }
 
       this.setState({ options: Object.keys(data_per_mac) });
       this.data_per_user = data_per_mac;
+    }
+
+    if (options.onlyMap != this.props.options.onlyMap) {
+      if (this.props.options.onlyMap) {
+        const { fields } = this.props.data.series[0];
+        const markers: CircleMarker[] = [];
+        for (let i = 0; i < this.props.data.series[0].length; i++) {
+          markers.push(
+            L.circleMarker(
+              [fields[1].values.buffer[i], fields[2].values.buffer[i]],
+              {
+                radius: 3,
+                renderer: L.canvas()
+              }
+            ).bindPopup(`${fields[0].values.buffer[i]}`)
+          );
+        }
+
+        if (this.props.options.onlyMap) {
+          this.markersLayer = L.layerGroup(markers).addTo(this.map);
+        }
+      } else {
+        if (this.markersLayer) {
+          this.map.removeLayer(this.markersLayer);
+        }
+      }
     }
 
     if (options.total_floors != this.props.options.total_floors) {
