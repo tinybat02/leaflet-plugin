@@ -414,7 +414,10 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           id="leaflet-map"
           style={{
             width: "100%",
-            height: this.props.options.onlyMap ? "100%" : "85%"
+            height:
+              this.props.options.onlyMap || this.props.options.heatMap
+                ? "100%"
+                : "85%"
           }}
         ></div>
       </div>
