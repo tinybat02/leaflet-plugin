@@ -64,7 +64,6 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     this.groundFloorLayer = floorLayers["Floor 0"];
 
     this.map = L.map("map", {
-      preferCanvas: true,
       layers: [openStreetMap, this.groundFloorLayer]
     }).setView([fields[1].values.buffer[0], fields[2].values.buffer[0]], 20);
 
@@ -75,8 +74,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         L.circleMarker(
           [fields[1].values.buffer[i], fields[2].values.buffer[i]],
           {
-            radius: 3,
-            renderer: L.canvas()
+            radius: 3
           }
         ).bindPopup(`${fields[0].values.buffer[i]}`)
       );
@@ -114,8 +112,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           L.circleMarker(
             [fields[1].values.buffer[i], fields[2].values.buffer[i]],
             {
-              radius: 3,
-              renderer: L.canvas()
+              radius: 3
             }
           ).bindPopup(`${fields[0].values.buffer[i]}`)
         );
@@ -144,8 +141,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
             L.circleMarker(
               [fields[1].values.buffer[i], fields[2].values.buffer[i]],
               {
-                radius: 3,
-                renderer: L.canvas()
+                radius: 3
               }
             ).bindPopup(`${fields[0].values.buffer[i]}`)
           );
@@ -209,20 +205,14 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
         markers_lines.push(
           L.circleMarker(trace_data[0], {
-            radius: 3,
-            renderer: L.canvas()
+            radius: 3
           })
         );
         for (let i = 0; i < trace_data.length - 1; i++) {
-          markers_lines.push(
-            L.polyline([trace_data[i], trace_data[i + 1]], {
-              renderer: L.canvas()
-            })
-          );
+          markers_lines.push(L.polyline([trace_data[i], trace_data[i + 1]]));
           markers_lines.push(
             L.circleMarker(trace_data[i + 1], {
-              radius: 3,
-              renderer: L.canvas()
+              radius: 3
             })
           );
         }
@@ -243,8 +233,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
             closest_markers.push(
               L.circleMarker(single.geometry.coordinates as [number, number], {
                 color: "red",
-                radius: 4,
-                renderer: L.canvas()
+                radius: 4
               })
             );
           });
@@ -279,23 +268,20 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
               topology_markers_lines.push(
                 L.circleMarker(path_finding[0], {
                   color: "yellow",
-                  radius: 3,
-                  renderer: L.canvas()
+                  radius: 3
                 })
               );
               for (let i = 0; i < path_finding.length - 1; i++) {
                 topology_markers_lines.push(
                   L.polyline([path_finding[i], path_finding[i + 1]], {
-                    color: "yellow",
-                    renderer: L.canvas()
+                    color: "yellow"
                   })
                 );
 
                 topology_markers_lines.push(
                   L.circleMarker(path_finding[i + 1], {
                     color: "yellow",
-                    radius: 3,
-                    renderer: L.canvas()
+                    radius: 3
                   })
                 );
               }
