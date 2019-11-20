@@ -264,9 +264,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       }
       this.groundFloorLayer = floorLayers["Floor 0"].addTo(this.map);
 
-      this.layerControl = L.control
-        .layers(floorLayers, { Marker: this.markersLayer })
-        .addTo(this.map);
+      this.layerControl = L.control.layers(floorLayers).addTo(this.map);
     }
 
     if (current_user != this.state.current_user) {
