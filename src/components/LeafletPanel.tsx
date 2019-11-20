@@ -165,6 +165,18 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
     if (options.onlyMap != this.props.options.onlyMap) {
       if (this.props.options.onlyMap) {
+        if (this.traces) {
+          this.map.removeLayer(this.traces);
+        }
+
+        if (this.topology_traces) {
+          this.map.removeLayer(this.topology_traces);
+        }
+
+        if (this.closest_traces) {
+          this.map.removeLayer(this.closest_traces);
+        }
+
         if (this.heatmapLayer) {
           this.map.removeLayer(this.heatmapLayer);
         }
@@ -192,6 +204,18 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
     if (options.heatMap != this.props.options.heatMap) {
       if (this.props.options.heatMap) {
+        if (this.traces) {
+          this.map.removeLayer(this.traces);
+        }
+
+        if (this.topology_traces) {
+          this.map.removeLayer(this.topology_traces);
+        }
+
+        if (this.closest_traces) {
+          this.map.removeLayer(this.closest_traces);
+        }
+
         if (this.markersLayer) {
           this.map.removeLayer(this.markersLayer);
         }
