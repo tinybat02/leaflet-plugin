@@ -64,7 +64,8 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         }
       );
     }
-    this.groundFloorLayer = floorLayers["Floor 0"];
+    this.groundFloorLayer =
+      floorLayers[`Floor ${this.props.options.default_floor}`];
 
     this.map = L.map("leaflet-map", {
       layers: [openStreetMap, this.groundFloorLayer]
@@ -241,7 +242,10 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       }
     }
 
-    if (options.total_floors != this.props.options.total_floors) {
+    if (
+      options.total_floors != this.props.options.total_floors ||
+      options.default_floor != this.props.options.default_floor
+    ) {
       if (this.layerControl) {
         this.map.removeControl(this.layerControl);
       }
@@ -262,7 +266,9 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           }
         );
       }
-      this.groundFloorLayer = floorLayers["Floor 0"].addTo(this.map);
+      this.groundFloorLayer = floorLayers[
+        `Floor ${this.props.options.default_floor}`
+      ].addTo(this.map);
 
       this.layerControl = L.control.layers(floorLayers).addTo(this.map);
     }

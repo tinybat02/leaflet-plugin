@@ -4,6 +4,9 @@ import "../styles/MapSettings.css";
 
 const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
   const [totalFloors, setTotal] = useState<number>(options.total_floors);
+  const [defaultFloor, setDefaultFloor] = useState<number>(
+    options.default_floor
+  );
 
   const handleRemove = (type: string) => () => {
     onOptionsChange({
@@ -25,6 +28,22 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
       });
     } else {
       setTotal(options.total_floors);
+    }
+  };
+
+  const handleInputDefaultFloor = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDefaultFloor(parseInt(e.target.value));
+  };
+
+  const handleSubmitDefaultFloor = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (defaultFloor >= 0 && defaultFloor <= options.total_floors - 1) {
+      onOptionsChange({
+        ...options,
+        default_floor: defaultFloor
+      });
+    } else {
+      setDefaultFloor(options.default_floor);
     }
   };
 
@@ -69,6 +88,17 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
               type="number"
               value={totalFloors}
               onInput={handleInputTotalFloors}
+              className="gf-form-input max-width-4 ng-pristine ng-valid ng-not-empty ng-touched"
+            />
+          </div>
+        </form>
+        <form onSubmit={handleSubmitDefaultFloor}>
+          <div className="gf-form">
+            <label className="gf-form-label width-8">Default Floor</label>
+            <input
+              type="number"
+              value={defaultFloor}
+              onInput={handleInputDefaultFloor}
               className="gf-form-input max-width-4 ng-pristine ng-valid ng-not-empty ng-touched"
             />
           </div>

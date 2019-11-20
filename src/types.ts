@@ -1,6 +1,7 @@
 import { GeoJSONObject } from "@turf/helpers";
 export interface MapOptions {
   total_floors: number;
+  default_floor: number;
   topology: GeoJSONObject;
   polygon: GeoJSONObject;
   onlyMap: boolean;
@@ -9,6 +10,7 @@ export interface MapOptions {
 
 export const defaults: MapOptions = {
   total_floors: 1,
+  default_floor: 0,
   topology: null,
   polygon: null,
   onlyMap: true,
