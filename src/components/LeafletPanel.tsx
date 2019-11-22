@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import ReactDOM from 'react-dom';
 import { PanelProps } from '@grafana/ui';
 import L, {
   Map,
@@ -8,6 +9,7 @@ import L, {
   TileLayer,
   Control,
   LayerGroup,
+  HeatLayer,
 } from 'leaflet';
 import { point, featureCollection, Point, Feature } from '@turf/helpers';
 import nearestPoint, { NearestPoint } from '@turf/nearest-point';
@@ -35,8 +37,9 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   layerControl: Control.Layers;
   groundFloorLayer: TileLayer;
   markersLayer: LayerGroup<CircleMarker>;
-  heatmapLayer: any;
+  heatmapLayer: HeatLayer;
   heatmapLegend: Control;
+  switchControl: Control;
 
   state = {
     options: [],
@@ -125,8 +128,23 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       this.heatmapLegend.addTo(this.map);
     }
 
-    this.layerControl = L.control.layers(floorLayers).addTo(this.map);
+    const jsx = (
+      <select onChange={this.handleSwitch}>
+        <option> Switch display</option>
+        <option value="markers">Markers</option>
+        <option value="heatmap">Heat Map</option>
+      </select>
+    );
+    this.switchControl = L.control.attribution({ position: 'topright' });
+    this.switchControl.onAdd = function(map) {
+      const div = L.DomUtil.create('div', 'switch');
+      ReactDOM.render(jsx, div);
+      return div;
+    };
 
+    this.switchControl.addTo(this.map);
+
+    this.layerControl = L.control.layers(floorLayers).addTo(this.map);
     this.setState({ options: Object.keys(data_per_mac) });
 
     this.data_per_user = data_per_mac;
@@ -434,6 +452,23 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     this.setState({ ...this.state, current_user: e.target.value });
   };
 
+  handleSwitch = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { options, onOptionsChange } = this.props;
+    if (e.target.value == 'markers') {
+      onOptionsChange({
+        ...options,
+        heatMap: false,
+        onlyMap: true,
+      });
+    }
+    if (e.target.value == 'heatmap') {
+      onOptionsChange({
+        ...options,
+        onlyMap: false,
+        heatMap: true,
+      });
+    }
+  };
   render() {
     const { options, current_user } = this.state;
 
