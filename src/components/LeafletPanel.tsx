@@ -129,8 +129,10 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     }
 
     const jsx = (
-      <select onChange={this.handleSwitch}>
-        <option> Switch display</option>
+      <select
+        defaultValue={this.props.options.onlyMap ? 'markers' : 'heatmap'}
+        onChange={this.handleSwitch}
+      >
         <option value="markers">Markers</option>
         <option value="heatmap">Heat Map</option>
       </select>
