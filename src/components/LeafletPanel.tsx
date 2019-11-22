@@ -1,5 +1,5 @@
-import React, { PureComponent } from "react";
-import { PanelProps } from "@grafana/ui";
+import React, { PureComponent } from 'react';
+import { PanelProps } from '@grafana/ui';
 import L, {
   Map,
   FeatureGroup,
@@ -7,15 +7,16 @@ import L, {
   Polyline,
   TileLayer,
   Control,
-  LayerGroup
-} from "leaflet";
-import { point, featureCollection, Point, Feature } from "@turf/helpers";
-import nearestPoint, { NearestPoint } from "@turf/nearest-point";
-import PathFinder from "geojson-path-finder";
-import { MapOptions } from "../types";
-import nanoid from "nanoid";
-import "leaflet.heat/dist/leaflet-heat";
-import "leaflet/dist/leaflet.css";
+  LayerGroup,
+} from 'leaflet';
+import { point, featureCollection, Point, Feature } from '@turf/helpers';
+import nearestPoint, { NearestPoint } from '@turf/nearest-point';
+import PathFinder from 'geojson-path-finder';
+import { MapOptions } from '../types';
+import nanoid from 'nanoid';
+import 'leaflet.heat/dist/leaflet-heat';
+import 'leaflet/dist/leaflet.css';
+import './styles/Legend.css';
 
 interface Props extends PanelProps<MapOptions> {}
 
@@ -25,7 +26,7 @@ interface MapState {
 }
 
 export class LeafletPanel extends PureComponent<Props, MapState> {
-  id = "id" + nanoid();
+  id = 'id' + nanoid();
   map: Map;
   traces: FeatureGroup;
   topology_traces: FeatureGroup;
@@ -35,22 +36,23 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   groundFloorLayer: TileLayer;
   markersLayer: LayerGroup<CircleMarker>;
   heatmapLayer: any;
+  heatmapLegend: Control;
 
   state = {
     options: [],
-    current_user: null
+    current_user: null,
   };
 
   componentDidMount() {
     const { fields } = this.props.data.series[0];
 
     const openStreetMap = L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
       {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         maxNativeZoom: 19,
-        maxZoom: 30
+        maxZoom: 30,
       }
     );
 
@@ -62,7 +64,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           1}/{z}/{x}/{y}.png`,
         {
           maxNativeZoom: 30,
-          maxZoom: 30
+          maxZoom: 30,
         }
       );
     }
@@ -70,7 +72,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       floorLayers[`Floor ${this.props.options.default_floor}`];
 
     this.map = L.map(this.id, {
-      layers: [openStreetMap, this.groundFloorLayer]
+      layers: [openStreetMap, this.groundFloorLayer],
     }).setView(
       [fields[1].values.buffer[0], fields[2].values.buffer[0]],
       this.props.options.zoom_level
@@ -84,17 +86,17 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         L.circleMarker(
           [fields[1].values.buffer[i], fields[2].values.buffer[i]],
           {
-            radius: 3
+            radius: 3,
           }
         ).bindPopup(`${fields[0].values.buffer[i]}`)
       );
 
-      heats.push([fields[1].values.buffer[i], fields[2].values.buffer[i], 0.2]);
+      heats.push([fields[1].values.buffer[i], fields[2].values.buffer[i], 0.1]);
 
       (data_per_mac[fields[0].values.buffer[i]] =
         data_per_mac[fields[0].values.buffer[i]] || []).push([
         fields[1].values.buffer[i],
-        fields[2].values.buffer[i]
+        fields[2].values.buffer[i],
       ]);
     }
 
@@ -105,8 +107,22 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     if (this.props.options.heatMap) {
       this.heatmapLayer = L.heatLayer(heats, {
         radius: 20,
-        minOpacity: 0.3
+        minOpacity: 0.3,
+        gradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' },
       }).addTo(this.map);
+      this.heatmapLegend = L.control.attribution({ position: 'bottomright' });
+      this.heatmapLegend.onAdd = function(map) {
+        const div = L.DomUtil.create('div', 'legend');
+        div.innerHTML += '<h4>Intensity</h4>';
+        div.innerHTML +=
+          '<i style="background: #1a86a8"></i><span> < 4  People </span><br>';
+        div.innerHTML +=
+          '<i style="background: #30b850"></i><span> 4-8  People </span><br>';
+        div.innerHTML +=
+          '<i style="background: #f6602d"></i><span> >10 People </span><br>';
+        return div;
+      };
+      this.heatmapLegend.addTo(this.map);
     }
 
     this.layerControl = L.control.layers(floorLayers).addTo(this.map);
@@ -136,7 +152,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           L.circleMarker(
             [fields[1].values.buffer[i], fields[2].values.buffer[i]],
             {
-              radius: 3
+              radius: 3,
             }
           ).bindPopup(`${fields[0].values.buffer[i]}`)
         );
@@ -144,13 +160,13 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         heats.push([
           fields[1].values.buffer[i],
           fields[2].values.buffer[i],
-          0.2
+          0.2,
         ]);
 
         (data_per_mac[fields[0].values.buffer[i]] =
           data_per_mac[fields[0].values.buffer[i]] || []).push([
           fields[1].values.buffer[i],
-          fields[2].values.buffer[i]
+          fields[2].values.buffer[i],
         ]);
       }
 
@@ -161,7 +177,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       if (this.props.options.heatMap) {
         this.heatmapLayer = L.heatLayer(heats, {
           radius: 25,
-          minOpacity: 0.3
+          minOpacity: 0.3,
         }).addTo(this.map);
       }
 
@@ -187,6 +203,10 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           this.map.removeLayer(this.heatmapLayer);
         }
 
+        if (this.heatmapLegend) {
+          this.map.removeControl(this.heatmapLegend);
+        }
+
         const { fields } = this.props.data.series[0];
         const markers: CircleMarker[] = [];
         for (let i = 0; i < this.props.data.series[0].length; i++) {
@@ -194,7 +214,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
             L.circleMarker(
               [fields[1].values.buffer[i], fields[2].values.buffer[i]],
               {
-                radius: 3
+                radius: 3,
               }
             ).bindPopup(`${fields[0].values.buffer[i]}`)
           );
@@ -226,19 +246,35 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           this.map.removeLayer(this.markersLayer);
         }
 
+        this.heatmapLegend = L.control.attribution({
+          position: 'bottomright',
+        });
+        this.heatmapLegend.onAdd = function(map) {
+          const div = L.DomUtil.create('div', 'legend');
+          div.innerHTML += '<h4>Intensity</h4>';
+          div.innerHTML +=
+            '<i style="background: #1a86a8"></i><span> < 4  People </span><br>';
+          div.innerHTML +=
+            '<i style="background: #30b850"></i><span> 4-8  People </span><br>';
+          div.innerHTML +=
+            '<i style="background: #f6602d"></i><span> >10 People </span><br>';
+          return div;
+        };
+        this.heatmapLegend.addTo(this.map);
+
         const { fields } = this.props.data.series[0];
         const heats: [number, number, number][] = [];
         for (let i = 0; i < this.props.data.series[0].length; i++) {
           heats.push([
             fields[1].values.buffer[i],
             fields[2].values.buffer[i],
-            0.2
+            0.2,
           ]);
         }
 
         this.heatmapLayer = L.heatLayer(heats, {
           radius: 25,
-          minOpacity: 0.3
+          minOpacity: 0.3,
         }).addTo(this.map);
       } else {
         if (this.heatmapLayer) {
@@ -267,7 +303,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
             1}/{z}/{x}/{y}.png`,
           {
             maxNativeZoom: 30,
-            maxZoom: 30
+            maxZoom: 30,
           }
         );
       }
@@ -295,21 +331,21 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         this.map.removeLayer(this.closest_traces);
       }
 
-      if (this.state.current_user != "None") {
+      if (this.state.current_user != 'None') {
         const trace_data = this.data_per_user[this.state.current_user];
 
         const markers_lines: (CircleMarker | Polyline)[] = [];
 
         markers_lines.push(
           L.circleMarker(trace_data[0], {
-            radius: 3
+            radius: 3,
           })
         );
         for (let i = 0; i < trace_data.length - 1; i++) {
           markers_lines.push(L.polyline([trace_data[i], trace_data[i + 1]]));
           markers_lines.push(
             L.circleMarker(trace_data[i + 1], {
-              radius: 3
+              radius: 3,
             })
           );
         }
@@ -318,7 +354,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           const closest_data: NearestPoint[] = [];
           const topology_nodes = featureCollection<Point>(
             options.topology.features.filter(
-              (element: Feature) => element.geometry.type == "Point"
+              (element: Feature) => element.geometry.type == 'Point'
             )
           );
           trace_data.map(location => {
@@ -329,8 +365,8 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
           closest_data.map(single => {
             closest_markers.push(
               L.circleMarker(single.geometry.coordinates as [number, number], {
-                color: "red",
-                radius: 4
+                color: 'red',
+                radius: 4,
               })
             );
           });
@@ -348,7 +384,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
             for (let i = 1; i < closest_data.length - 1; i++) {
               const path_result = (
                 pathFinder.findPath(closest_data[i], closest_data[i + 1]) || {
-                  path: []
+                  path: [],
                 }
               ).path;
               //console.log('index ', i);
@@ -364,21 +400,21 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
             if (path_finding.length != 0) {
               topology_markers_lines.push(
                 L.circleMarker(path_finding[0], {
-                  color: "yellow",
-                  radius: 3
+                  color: 'yellow',
+                  radius: 3,
                 })
               );
               for (let i = 0; i < path_finding.length - 1; i++) {
                 topology_markers_lines.push(
                   L.polyline([path_finding[i], path_finding[i + 1]], {
-                    color: "yellow"
+                    color: 'yellow',
                   })
                 );
 
                 topology_markers_lines.push(
                   L.circleMarker(path_finding[i + 1], {
-                    color: "yellow",
-                    radius: 3
+                    color: 'yellow',
+                    radius: 3,
                   })
                 );
               }
@@ -402,7 +438,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     const { options, current_user } = this.state;
 
     return (
-      <div style={{ width: "100%", height: "100%" }}>
+      <div style={{ width: '100%', height: '100%' }}>
         {!(this.props.options.onlyMap || this.props.options.heatMap) && (
           <div style={{ padding: 20 }}>
             <div>Select user: </div>
@@ -426,11 +462,11 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         <div
           id={this.id}
           style={{
-            width: "100%",
+            width: '100%',
             height:
               this.props.options.onlyMap || this.props.options.heatMap
-                ? "100%"
-                : "85%"
+                ? '100%'
+                : '85%',
           }}
         ></div>
       </div>
