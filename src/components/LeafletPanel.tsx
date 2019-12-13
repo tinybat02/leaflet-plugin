@@ -9,16 +9,15 @@ import L, {
   TileLayer,
   Control,
   LayerGroup,
-  HeatLayer,
 } from 'leaflet';
+import 'leaflet.heat/dist/leaflet-heat';
 import { point, featureCollection, Point, Feature } from '@turf/helpers';
 import nearestPoint, { NearestPoint } from '@turf/nearest-point';
 import PathFinder from 'geojson-path-finder';
 import { MapOptions } from '../types';
 import nanoid from 'nanoid';
-import 'leaflet.heat/dist/leaflet-heat';
-import 'leaflet/dist/leaflet.css';
 import './styles/Legend.css';
+import 'leaflet/dist/leaflet.css';
 
 interface Props extends PanelProps<MapOptions> {}
 
@@ -35,9 +34,9 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   closest_traces: FeatureGroup;
   data_per_user: { [key: string]: [number, number][] };
   layerControl: Control.Layers;
-  groundFloorLayer: TileLayer;
+  initialFloor: TileLayer;
   markersLayer: LayerGroup<CircleMarker>;
-  heatmapLayer: HeatLayer;
+  heatmapLayer: any;
   heatmapLegend: Control;
   switchControl: Control;
 
@@ -48,6 +47,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
   componentDidMount() {
     const { fields } = this.props.data.series[0];
+    console.log('data....', this.props.data);
 
     const openStreetMap = L.tileLayer(
       'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
@@ -61,21 +61,20 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
     const floorLayers: { [name: string]: TileLayer } = {};
 
-    for (let i = 1; i <= this.props.options.total_floors; i++) {
-      floorLayers[`Floor ${i - 1}`] = L.tileLayer(
-        `http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot${i -
-          1}/{z}/{x}/{y}.png`,
+    for (let i = 0; i < this.props.options.total_floors; i++) {
+      floorLayers[`Floor ${i}`] = L.tileLayer(
+        `http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot${i}/{z}/{x}/{y}.png`,
         {
           maxNativeZoom: 30,
           maxZoom: 30,
         }
       );
     }
-    this.groundFloorLayer =
+    this.initialFloor =
       floorLayers[`Floor ${this.props.options.default_floor}`];
 
     this.map = L.map(this.id, {
-      layers: [openStreetMap, this.groundFloorLayer],
+      layers: [openStreetMap, this.initialFloor],
     }).setView(
       [fields[1].values.buffer[0], fields[2].values.buffer[0]],
       this.props.options.zoom_level
@@ -311,23 +310,22 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         this.map.removeControl(this.layerControl);
       }
 
-      if (this.groundFloorLayer) {
-        this.map.removeLayer(this.groundFloorLayer);
+      if (this.initialFloor) {
+        this.map.removeLayer(this.initialFloor);
       }
 
       const floorLayers: { [name: string]: TileLayer } = {};
 
-      for (let i = 1; i <= this.props.options.total_floors; i++) {
-        floorLayers[`Floor ${i - 1}`] = L.tileLayer(
-          `http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot${i -
-            1}/{z}/{x}/{y}.png`,
+      for (let i = 0; i < this.props.options.total_floors; i++) {
+        floorLayers[`Floor ${i}`] = L.tileLayer(
+          `http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot${i}/{z}/{x}/{y}.png`,
           {
             maxNativeZoom: 30,
             maxZoom: 30,
           }
         );
       }
-      this.groundFloorLayer = floorLayers[
+      this.initialFloor = floorLayers[
         `Floor ${this.props.options.default_floor}`
       ].addTo(this.map);
 
