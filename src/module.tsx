@@ -1,5 +1,5 @@
 import { PanelPlugin } from '@grafana/ui';
-import LeafletPanel from './components/LeafletPanel';
+import { LeafletPanel } from './components/LeafletPanel';
 import { MapPanelEditor } from './components/PanelEditor';
 import { defaults, MapOptions } from './types';
 
