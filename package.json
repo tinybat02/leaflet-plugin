@@ -19,6 +19,7 @@
     "leaflet.heat": "^0.2.0",
     "nanoid": "^2.1.7",
     "react": "^16.10.2",
+    "react-async-script-loader": "^0.3.0",
     "react-dom": "^16.10.2"
   },
   "devDependencies": {

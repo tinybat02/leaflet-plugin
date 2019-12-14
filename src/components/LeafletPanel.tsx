@@ -10,23 +10,26 @@ import L, {
   Control,
   LayerGroup,
 } from 'leaflet';
-import 'leaflet.heat/dist/leaflet-heat';
 import { point, featureCollection, Point, Feature } from '@turf/helpers';
 import nearestPoint, { NearestPoint } from '@turf/nearest-point';
 import PathFinder from 'geojson-path-finder';
 import { MapOptions } from '../types';
 import nanoid from 'nanoid';
+import scriptLoader from 'react-async-script-loader';
+//import 'leaflet.heat/dist/leaflet-heat';
 import './styles/Legend.css';
 import 'leaflet/dist/leaflet.css';
 
-interface Props extends PanelProps<MapOptions> {}
+interface Props extends PanelProps<MapOptions> {
+  isScriptLoadSucceed: boolean;
+}
 
 interface MapState {
   options: string[];
   current_user: string;
 }
 
-export class LeafletPanel extends PureComponent<Props, MapState> {
+class LeafletPanel extends PureComponent<Props, MapState> {
   id = 'id' + nanoid();
   map: Map;
   traces: FeatureGroup;
@@ -46,6 +49,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   };
 
   componentDidMount() {
+    const { isScriptLoadSucceed } = this.props;
     const { fields } = this.props.data.series[0];
     console.log('data....', this.props.data);
 
@@ -106,7 +110,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       this.markersLayer = L.layerGroup(markers).addTo(this.map);
     }
 
-    if (this.props.options.heatMap) {
+    if (this.props.options.heatMap && isScriptLoadSucceed) {
       this.heatmapLayer = L.heatLayer(heats, {
         radius: 20,
         minOpacity: 0.3,
@@ -151,7 +155,24 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     this.data_per_user = data_per_mac;
   }
 
-  componentDidUpdate({ data, options }, { current_user }) {
+  componentDidUpdate({ data, options, isScriptLoadSucceed }, { current_user }) {
+    if (!isScriptLoadSucceed && this.props.isScriptLoadSucceed) {
+      if (this.props.options.heatMap) {
+        const { fields } = this.props.data.series[0];
+        const heats: [number, number, number][] = [];
+        for (let i = 0; i < this.props.data.series[0].length; i++) {
+          heats.push([
+            fields[1].values.buffer[i],
+            fields[2].values.buffer[i],
+            0.2,
+          ]);
+        }
+        this.heatmapLayer = L.heatLayer(heats, {
+          radius: 25,
+          minOpacity: 0.3,
+        }).addTo(this.map);
+      }
+    }
     if (data.series[0] != this.props.data.series[0]) {
       const { fields } = this.props.data.series[0];
 
@@ -508,3 +529,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     );
   }
 }
+
+export default scriptLoader(
+  'https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js'
+)(LeafletPanel);
