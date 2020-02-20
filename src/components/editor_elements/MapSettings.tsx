@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { PropsOptions } from "../../types";
-import "../styles/MapSettings.css";
+import React, { useState } from 'react';
+import { PropsOptions } from '../../types';
+import '../styles/MapSettings.css';
 
 const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
   const [totalFloors, setTotal] = useState<number>(options.total_floors);
@@ -8,11 +8,12 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
     options.default_floor
   );
   const [zoomLevel, setZoomLevel] = useState<number>(options.zoom_level);
+  const [maxZoom, setMaxZoom] = useState<number>(options.max_zoom);
 
   const handleRemove = (type: string) => () => {
     onOptionsChange({
       ...options,
-      [type]: null
+      [type]: null,
     });
   };
 
@@ -25,7 +26,7 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
     if (totalFloors >= 1) {
       onOptionsChange({
         ...options,
-        total_floors: totalFloors
+        total_floors: totalFloors,
       });
     } else {
       setTotal(options.total_floors);
@@ -41,7 +42,7 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
     if (defaultFloor >= 0 && defaultFloor <= options.total_floors - 1) {
       onOptionsChange({
         ...options,
-        default_floor: defaultFloor
+        default_floor: defaultFloor,
       });
     } else {
       setDefaultFloor(options.default_floor);
@@ -57,10 +58,26 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
     if (zoomLevel >= 10 && zoomLevel <= 30) {
       onOptionsChange({
         ...options,
-        zoom_level: zoomLevel
+        zoom_level: zoomLevel,
       });
     } else {
       setZoomLevel(options.zoom_level);
+    }
+  };
+
+  const handleMaxZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMaxZoom(parseInt(e.target.value));
+  };
+
+  const handleSubmitMaxZoom = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (maxZoom >= options.zoom_level && maxZoom <= 30) {
+      onOptionsChange({
+        ...options,
+        max_zoom: maxZoom,
+      });
+    } else {
+      setMaxZoom(options.max_zoom);
     }
   };
 
@@ -69,12 +86,12 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
       onOptionsChange({
         ...options,
         onlyMap: !options.onlyMap,
-        heatMap: false
+        heatMap: false,
       });
     } else {
       onOptionsChange({
         ...options,
-        onlyMap: !options.onlyMap
+        onlyMap: !options.onlyMap,
       });
     }
   };
@@ -84,12 +101,12 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
       onOptionsChange({
         ...options,
         onlyMap: false,
-        heatMap: !options.heatMap
+        heatMap: !options.heatMap,
       });
     } else {
       onOptionsChange({
         ...options,
-        heatMap: !options.heatMap
+        heatMap: !options.heatMap,
       });
     }
   };
@@ -131,6 +148,17 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
             />
           </div>
         </form>
+        <form onSubmit={handleSubmitMaxZoom}>
+          <div className="gf-form">
+            <label className="gf-form-label width-8">Max Zoom</label>
+            <input
+              type="number"
+              value={maxZoom}
+              onInput={handleMaxZoom}
+              className="gf-form-input max-width-4 ng-pristine ng-valid ng-not-empty ng-touched"
+            />
+          </div>
+        </form>
         <div className="gf-form" style={{ marginTop: 10 }}>
           <label className="gf-form-label width-8">Circle Markers</label>
           <div className="gf-form-switch" onClick={handleOnlyMap}>
@@ -155,14 +183,14 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
           <div className="setting-circle-wrapper">
             <div
               className="settings-circle"
-              style={{ background: options.topology ? "#32c132" : "#666" }}
+              style={{ background: options.topology ? '#32c132' : '#666' }}
             />
           </div>
           {options.topology && (
             <button
               className="btn btn-small btn-outline-primary"
               style={{ marginTop: 7 }}
-              onClick={handleRemove("topology")}
+              onClick={handleRemove('topology')}
             >
               Remove
             </button>
@@ -173,14 +201,14 @@ const MapSettings: React.FC<PropsOptions> = ({ options, onOptionsChange }) => {
           <div className="setting-circle-wrapper">
             <div
               className="settings-circle"
-              style={{ background: options.polygon ? "#32c132" : "#666" }}
+              style={{ background: options.polygon ? '#32c132' : '#666' }}
             />
           </div>
           {options.polygon && (
             <button
               className="btn btn-small btn-outline-primary"
               style={{ marginTop: 7 }}
-              onClick={handleRemove("polygon")}
+              onClick={handleRemove('polygon')}
             >
               Remove
             </button>

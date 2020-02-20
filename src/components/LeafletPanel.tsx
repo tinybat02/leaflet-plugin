@@ -55,7 +55,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         maxNativeZoom: 19,
-        maxZoom: 30,
+        maxZoom: this.props.options.max_zoom,
       }
     );
 
@@ -66,19 +66,25 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         `http://ec2-18-188-248-182.us-east-2.compute.amazonaws.com/hot${i}/{z}/{x}/{y}.png`,
         {
           maxNativeZoom: 30,
-          maxZoom: 30,
+          maxZoom: this.props.options.max_zoom,
         }
       );
     }
     this.initialFloor =
       floorLayers[`Floor ${this.props.options.default_floor}`];
 
-    this.map = L.map(this.id, {
-      layers: [openStreetMap, this.initialFloor],
-    }).setView(
-      [fields[1].values.buffer[0], fields[2].values.buffer[0]],
-      this.props.options.zoom_level
-    );
+    if (fields[1].values.buffer.length == 0) {
+      this.map = L.map(this.id, {
+        layers: [openStreetMap, this.initialFloor],
+      }).setView([0, 0], this.props.options.zoom_level);
+    } else {
+      this.map = L.map(this.id, {
+        layers: [openStreetMap, this.initialFloor],
+      }).setView(
+        [fields[1].values.buffer[0], fields[2].values.buffer[0]],
+        this.props.options.zoom_level
+      );
+    }
 
     const markers: CircleMarker[] = [];
     const heats: [number, number, number][] = [];
@@ -154,6 +160,16 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   componentDidUpdate({ data, options }, { current_user }) {
     if (data.series[0] != this.props.data.series[0]) {
       const { fields } = this.props.data.series[0];
+
+      if (
+        data.series[0][1].values.buffer.length == 0 &&
+        fields[1].values.buffer.length !== 0
+      ) {
+        this.map.flyTo([
+          fields[1].values.buffer[0],
+          fields[2].values.buffer[0],
+        ]);
+      }
 
       if (this.markersLayer) {
         this.map.removeLayer(this.markersLayer);
