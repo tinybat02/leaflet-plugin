@@ -162,7 +162,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
       const { fields } = this.props.data.series[0];
 
       if (
-        data.series[0][1].values.buffer.length == 0 &&
+        data.series[0].fields[1].values.buffer.length == 0 &&
         fields[1].values.buffer.length !== 0
       ) {
         this.map.flyTo([
