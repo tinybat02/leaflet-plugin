@@ -211,7 +211,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
 
       if (this.props.options.heatMap) {
         this.heatmapLayer = L.heatLayer(heats, {
-          radius: 25,
+          radius: 20,
           minOpacity: 0.3,
           gradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' },
         }).addTo(this.map);
@@ -309,7 +309,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         }
 
         this.heatmapLayer = L.heatLayer(heats, {
-          radius: 25,
+          radius: 20,
           minOpacity: 0.3,
           gradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' },
         }).addTo(this.map);
