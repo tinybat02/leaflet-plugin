@@ -76,7 +76,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
     if (fields[1].values.buffer.length == 0) {
       this.map = L.map(this.id, {
         layers: [openStreetMap, this.initialFloor],
-      }).setView([0, 0], this.props.options.zoom_level);
+      }).setView([48.262725, 11.66725], this.props.options.zoom_level);
     } else {
       this.map = L.map(this.id, {
         layers: [openStreetMap, this.initialFloor],
