@@ -37,6 +37,7 @@ export class MapPanelEditor extends PureComponent<
       const that = this;
       reader.onloadend = function() {
         const obj = JSON.parse(reader.result as string);
+        console.log('obj ', obj);
         that.props.onOptionsChange({
           ...that.props.options,
           topology: obj,
