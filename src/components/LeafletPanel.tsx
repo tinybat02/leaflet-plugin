@@ -387,7 +387,9 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         }
 
         if (options.topology) {
-          const closest_data: NearestPoint[] = [];
+          const closest_data: NearestPoint[] = [
+            point([25.22441314102, 55.42400803383]),
+          ];
           const topology_nodes = featureCollection<Point>(
             options.topology.features.filter(
               (element: Feature) => element.geometry.type == 'Point'
@@ -460,7 +462,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
             }
           }
 
-          this.traces = L.featureGroup(markers_lines).addTo(this.map);
+          //this.traces = L.featureGroup(markers_lines).addTo(this.map);
         }
       }
     }
