@@ -18,6 +18,7 @@ import nanoid from 'nanoid';
 import 'leaflet.heat/dist/leaflet-heat';
 import './styles/Legend.css';
 import 'leaflet/dist/leaflet.css';
+import './js/AnimatedMarker.js';
 
 interface Props extends PanelProps<MapOptions> {}
 
@@ -32,6 +33,8 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
   traces: FeatureGroup;
   topology_traces: FeatureGroup;
   closest_traces: FeatureGroup;
+  topology_lines: Polyline;
+  animated_marker: any;
   data_per_user: { [key: string]: [number, number][] };
   layerControl: Control.Layers;
   initialFloor: TileLayer;
@@ -367,6 +370,14 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
         this.map.removeLayer(this.closest_traces);
       }
 
+      if (this.topology_lines) {
+        this.map.removeLayer(this.topology_lines);
+      }
+
+      if (this.animated_marker) {
+        this.map.removeLayer(this.animated_marker);
+      }
+
       if (this.state.current_user != 'None') {
         const trace_data = this.data_per_user[this.state.current_user];
 
@@ -442,7 +453,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
                   radius: 3,
                 })
               );
-              for (let i = 0; i < path_finding.length - 1; i++) {
+              /* for (let i = 0; i < path_finding.length - 1; i++) {
                 topology_markers_lines.push(
                   L.polyline([path_finding[i], path_finding[i + 1]], {
                     color: 'yellow',
@@ -455,9 +466,19 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
                     radius: 3,
                   })
                 );
-              }
-              this.topology_traces = L.featureGroup(
+              } */
+              /* this.topology_traces = L.featureGroup(
                 topology_markers_lines
+              ).addTo(this.map); */
+              this.topology_lines = L.polyline(path_finding, {
+                color: 'yellow',
+              }).addTo(this.map);
+              this.animated_marker = L.animatedMarker(
+                this.topology_lines.getLatLngs(),
+                {
+                  radius: 3,
+                  color: '#336569',
+                }
               ).addTo(this.map);
             }
           }
