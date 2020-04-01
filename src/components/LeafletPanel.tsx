@@ -477,7 +477,7 @@ export class LeafletPanel extends PureComponent<Props, MapState> {
                 this.topology_lines.getLatLngs(),
                 {
                   radius: 3,
-                  color: '#336569',
+                  color: '#66C1C4',
                 }
               ).addTo(this.map);
             }
