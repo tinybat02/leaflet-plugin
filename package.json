@@ -17,7 +17,7 @@
     "geojson-path-finder": "^1.5.2",
     "leaflet": "^1.5.1",
     "leaflet.heat": "^0.2.0",
-    "nanoid": "^2.1.7",
+    "nanoid": "^3.1.31",
     "react": "^16.10.2",
     "react-dom": "^16.10.2"
   },
