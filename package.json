@@ -11,7 +11,7 @@
   "author": "Grafana Labs",
   "license": "MIT",
   "dependencies": {
-    "@grafana/ui": "^6.4.2",
+    "@grafana/ui": "^9.3.2",
     "@turf/helpers": "^6.1.4",
     "@turf/nearest-point": "^6.0.1",
     "geojson-path-finder": "^1.5.2",
